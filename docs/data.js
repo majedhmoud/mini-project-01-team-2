@@ -1,6 +1,6 @@
 const mysteries = [
   {
-    id: "0100",
+    id: 1,
     title: "The Heisenberg Formula",
     summary:
       "A missing batch recipe has locked down the superlab. Decipher chemical cues to restore system access.",
@@ -8,7 +8,7 @@ const mysteries = [
       "You walk into the underground lab beneath the industrial laundry. The main control terminal is locked, and a timer is counting down. Walter left three encoded safety prompts across the lab equipment to ensure only someone with acute chemical knowledge can reboot the ventilation system.",
     stages: [
       {
-        id: "0101",
+        id: 1,
         title: "Stage 1: The Periodic Combination",
         question:
           "What is the 4-digit security PIN to unlock the lab door terminal?",
@@ -23,7 +23,7 @@ const mysteries = [
         ],
       },
       {
-        id: "0102",
+        id: 2,
         title: "Stage 2: The Encoded Alias Prompt",
         question:
           "What 10-letter codename decrypts the lead chemist's terminal identity?",
@@ -38,7 +38,7 @@ const mysteries = [
         ],
       },
       {
-        id: "0103",
+        id: 3,
         title: "Stage 3: The Multi-Variable Control Lock",
         question:
           "What 4-digit code ABCD clears the emergency purge lock and starts the ventilation system?",
@@ -57,7 +57,7 @@ const mysteries = [
       "The terminal screen lights up green, showing 'VENTILATION RESTORED - SYSTEM READY'. The pressure drops back to safe levels just as footsteps echo down the lab stairs. You successfully bypassed the lockdown without blowing your cover.",
   },
   {
-    id: "0200",
+    id: 2,
     title: "The Los Pollos Logistics",
     summary:
       "Intercepted distribution manifests hold the key to tracking hidden supply routes across the Southwest.",
@@ -65,7 +65,7 @@ const mysteries = [
       "Inside the main distribution center, Gus Fring's automated inventory system has gone into protective lockdown. To avoid drawing suspicion from corporate auditors, you must solve three security challenges hidden inside the daily logistics logs to restore normal operations.",
     stages: [
       {
-        id: "0201",
+        id: 1,
         title: "Stage 1: Manifest Weight Balance",
         question:
           "What 4-digit weight code clears the loading dock balance verification?",
@@ -81,7 +81,7 @@ const mysteries = [
         ],
       },
       {
-        id: "0202",
+        id: 2,
         title: "Stage 2: Caesar Shift Routing",
         question:
           "What 7-letter hub destination decrypts the encrypted transport header 'SDRHQLA'?",
@@ -97,7 +97,7 @@ const mysteries = [
         ],
       },
       {
-        id: "0203",
+        id: 3,
         title: "Stage 3: Freight Matrix Lock",
         question:
           "What 4-digit distribution override PIN ABCD unlocks the main logistics grid?",
@@ -117,7 +117,7 @@ const mysteries = [
       "The terminal displays 'MANIFEST VERIFIED - ALL ROUTES CLEAR'. The tracking grid updates, revealing the hidden supply coordinates safely encrypted in the system.",
   },
   {
-    id: "0300",
+    id: 3,
     title: "The Desert Cache Protocol",
     summary:
       "A series of hidden physical markers and environmental clues in To'hajiilee lead to a buried vault.",
@@ -125,7 +125,7 @@ const mysteries = [
       "You stand in the scorching heat of the To'hajiilee desert, holding a worn field journal left by Walter White. Rather than digital codes, Walter used physical landmarks, environmental anomalies, and chemical solvent tests to mark the path to his buried reserves.",
     stages: [
       {
-        id: "0301",
+        id: 1,
         title: "Stage 1: The Landmark Marker (Medium)",
         question:
           "Which natural landmark must you head toward to find the first buried marker?",
@@ -140,7 +140,7 @@ const mysteries = [
         ],
       },
       {
-        id: "0302",
+        id: 2,
         title: "Stage 2: The Solvent Neutralizer (Hard)",
         question:
           "Which chemical solvent from Walter's field kit will safely dissolve the wax seal on the buried chest?",
@@ -155,7 +155,7 @@ const mysteries = [
         ],
       },
       {
-        id: "0303",
+        id: 3,
         title: "Stage 3: The Cipher Key Word (Very Hard)",
         question:
           "What 7-letter key word opens the vintage padlock securing the buried chest?",
