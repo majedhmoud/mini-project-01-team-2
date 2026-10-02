@@ -2,6 +2,7 @@ import type {
   AnswerResponse,
   HintResponse,
   Mystery,
+  MysteryListing,
 } from "../features/mystery/mysteryTypes";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
@@ -98,8 +99,37 @@ function isMystery(value: unknown): value is Mystery {
     stagesAreValid &&
     revealIsValid &&
     value.stageIndex >= 0 &&
-    value.stageIndex < value.stages.length
+    (value.solved
+      ? value.stageIndex <= value.stages.length
+      : value.stageIndex < value.stages.length)
   );
+}
+
+function isMysteryListing(value: unknown): value is MysteryListing {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.title === "string" &&
+    typeof value.summary === "string" &&
+    (value.difficulty === undefined || typeof value.difficulty === "string") &&
+    (value.durationMinutes === undefined ||
+      (typeof value.durationMinutes === "number" &&
+        value.durationMinutes >= 0)) &&
+    (value.stageCount === undefined ||
+      (typeof value.stageCount === "number" && value.stageCount >= 0)) &&
+    (value.available === undefined || typeof value.available === "boolean")
+  );
+}
+
+export async function getMysteries(): Promise<MysteryListing[]> {
+  const payload = await request<unknown>("/mysteries");
+  if (!Array.isArray(payload) || !payload.every(isMysteryListing)) {
+    throw new ApiError(
+      "The case server returned an invalid mystery list.",
+      502,
+    );
+  }
+  return payload;
 }
 
 function requireMystery(value: unknown): Mystery {

@@ -27,6 +27,16 @@ export type Mystery = {
   reveal?: MysteryReveal;
 };
 
+export type MysteryListing = {
+  id: string;
+  title: string;
+  summary: string;
+  difficulty?: string;
+  durationMinutes?: number;
+  stageCount?: number;
+  available?: boolean;
+};
+
 export type AnswerResponse = {
   correct: boolean;
   message: string;

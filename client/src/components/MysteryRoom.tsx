@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import {
   clearFeedback,
@@ -25,6 +25,7 @@ function ClueCard({ clue, index }: { clue: MysteryClue; index: number }) {
 
 function MysteryRoom() {
   const { mysteryId = "" } = useParams();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const {
     current: mystery,
@@ -38,18 +39,17 @@ function MysteryRoom() {
   } = useAppSelector((state) => state.mystery);
   const [answer, setAnswer] = useState("");
   const activeStage = mystery?.stages[mystery.stageIndex];
-  const isSolved = Boolean(mystery?.solved);
 
   useEffect(() => {
     dispatch(loadMystery(mysteryId));
     setAnswer("");
   }, [dispatch, mysteryId]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!mystery || !activeStage || !answer.trim() || isSubmitting) return;
 
-    dispatch(
+    const result = await dispatch(
       submitAnswer({
         mysteryId,
         stageId: activeStage.id,
@@ -57,6 +57,13 @@ function MysteryRoom() {
       }),
     );
     setAnswer("");
+    if (
+      submitAnswer.fulfilled.match(result) &&
+      result.payload.correct &&
+      result.payload.mystery.solved
+    ) {
+      navigate(`/mysteries/${encodeURIComponent(mysteryId)}/result`);
+    }
   }
 
   function handleHint() {
@@ -95,47 +102,20 @@ function MysteryRoom() {
           >
             Retry loading
           </button>
+          <Link className="text-button" to="/">
+            Return to case files
+          </Link>
         </section>
       </main>
     );
   }
 
-  if (isSolved) {
+  if (mystery.solved) {
     return (
-      <main className="mystery-route">
-        <section
-          className="content-panel reveal-page"
-          aria-labelledby="reveal-title"
-        >
-          <p className="eyebrow">Case closed / final reveal</p>
-          <div className="reveal-seal" aria-hidden="true">
-            ✦
-          </div>
-          <h1 id="reveal-title">{mystery.reveal?.title ?? mystery.title}</h1>
-          <p className="reveal-verdict">
-            {mystery.reveal?.verdict ?? "The evidence has led to the truth."}
-          </p>
-          {mystery.reveal?.details && (
-            <div className="reveal-copy">
-              <p>{mystery.reveal.details}</p>
-            </div>
-          )}
-          <div className="reveal-stats">
-            <span>
-              <strong>{mystery.stages.length}</strong> stages solved
-            </span>
-            <span>
-              <strong>1</strong> case closed
-            </span>
-          </div>
-          <button
-            className="button button--gold"
-            onClick={() => dispatch(loadMystery(mysteryId))}
-          >
-            Review case
-          </button>
-        </section>
-      </main>
+      <Navigate
+        to={`/mysteries/${encodeURIComponent(mysteryId)}/result`}
+        replace
+      />
     );
   }
 
@@ -157,6 +137,9 @@ function MysteryRoom() {
           >
             Reload case
           </button>
+          <Link className="text-button" to="/">
+            Return to case files
+          </Link>
         </section>
       </main>
     );
@@ -168,6 +151,11 @@ function MysteryRoom() {
         className="content-panel gameplay-page"
         aria-labelledby="case-title"
       >
+        <div className="gameplay-links">
+          <Link className="text-button" to="/">
+            ← All case files
+          </Link>
+        </div>
         <p className="eyebrow">Case file / active investigation</p>
         <h1 id="case-title">{mystery.title}</h1>
         <p className="case-summary">{mystery.summary}</p>

@@ -1,10 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
+  getMysteries,
   getMystery,
   requestMysteryHint,
   submitMysteryAnswer,
 } from "../../api/mysteryApi";
-import type { Mystery } from "./mysteryTypes";
+import type { Mystery, MysteryListing } from "./mysteryTypes";
 import type { RootState } from "../../store";
 
 type ThunkConfig = { rejectValue: string; state: RootState };
@@ -15,6 +16,9 @@ type Feedback = {
 };
 
 type MysteryState = {
+  listings: MysteryListing[];
+  listStatus: "idle" | "loading" | "succeeded" | "failed";
+  listError: string | null;
   current: Mystery | null;
   requestedId: string | null;
   loadStatus: "idle" | "loading" | "succeeded" | "failed";
@@ -27,6 +31,9 @@ type MysteryState = {
 };
 
 const initialState: MysteryState = {
+  listings: [],
+  listStatus: "idle",
+  listError: null,
   current: null,
   requestedId: null,
   loadStatus: "idle",
@@ -43,6 +50,24 @@ function errorMessage(error: unknown): string {
     ? error.message
     : "Something went wrong. Please retry.";
 }
+
+export const loadMysteries = createAsyncThunk<
+  MysteryListing[],
+  void,
+  ThunkConfig
+>(
+  "mystery/loadList",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getMysteries();
+    } catch (error) {
+      return rejectWithValue(errorMessage(error));
+    }
+  },
+  {
+    condition: (_, { getState }) => getState().mystery.listStatus !== "loading",
+  },
+);
 
 export const loadMystery = createAsyncThunk<Mystery, string, ThunkConfig>(
   "mystery/load",
@@ -102,6 +127,19 @@ const mysterySlice = createSlice({
   },
   extraReducers(builder) {
     builder
+      .addCase(loadMysteries.pending, (state) => {
+        state.listStatus = "loading";
+        state.listError = null;
+      })
+      .addCase(loadMysteries.fulfilled, (state, action) => {
+        state.listStatus = "succeeded";
+        state.listings = action.payload;
+      })
+      .addCase(loadMysteries.rejected, (state, action) => {
+        state.listStatus = "failed";
+        state.listError =
+          action.payload ?? action.error.message ?? "Unable to load mysteries.";
+      })
       .addCase(loadMystery.pending, (state, action) => {
         state.loadStatus = "loading";
         state.requestedId = action.meta.arg;
