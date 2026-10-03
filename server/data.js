@@ -1,5 +1,5 @@
-const mysteryData = {
-  mysteries: [
+const puzzlesData = {
+  puzzles: [
     // Restore Walter's lab ventilation: unlock the door, decode his alias,
     // then solve the final control-panel PIN to end the lockdown.
     {
