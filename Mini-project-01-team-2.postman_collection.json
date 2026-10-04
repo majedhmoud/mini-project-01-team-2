@@ -1,0 +1,113 @@
+{
+  "info": {
+    "_postman_id": "1d4c1720-a1a0-40ee-8129-e8b07fa6c598",
+    "name": "Mini-project-01-team-2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50412891"
+  },
+  "item": [
+    {
+      "name": "getAllPuzzles",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/puzzles",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "puzzles"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getPuzzle",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/puzzles/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "puzzles",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "submitAnswer",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"stageId\": 1,\r\n  \"answer\": \"3556\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/puzzles/1/answers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "puzzles",
+            "1",
+            "answers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "requestStageHint",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"stageId\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/puzzles/1/hints",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "puzzles",
+            "1",
+            "hints"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
