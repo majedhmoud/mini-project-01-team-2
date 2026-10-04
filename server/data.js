@@ -183,3 +183,5 @@ const puzzlesData = {
     },
   ],
 };
+
+export { puzzlesData };
