@@ -9,5 +9,5 @@ coverage/
 .env
 .env.*
 !.env.example
-
+.vscode/
 .github/

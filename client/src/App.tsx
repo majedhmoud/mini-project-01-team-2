@@ -2,25 +2,11 @@ import { Link, Route, Routes } from "react-router-dom";
 import PuzzlesSection from "./components/PuzzlesSection";
 import HowToPlayPage from "./pages/HowToPlayPage";
 import PuzzlePage from "./pages/PuzzlePage";
+import Header from "./components/Header";
 function App() {
   return (
     <>
-      <header className="navbar">
-        <div className="navbar-content">
-          <Link className="brand" to="/">
-            Mystery Room
-          </Link>
-
-          <nav>
-            <Link className="nav-link" to="/">
-              Puzzles
-            </Link>
-            <Link className="nav-link" to="/how-to-play">
-              How to Play
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main className="main-layout">
         <Routes>
