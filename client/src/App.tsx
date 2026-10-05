@@ -25,6 +25,7 @@ function App() {
       <main className="main-layout">
         <Routes>
           <Route path="/" element={<PuzzlesSection />} />
+          <Route path="/puzzles/:puzzleId" element={<PuzzlePage />} />
           <Route path="/how-to-play" element={<HowToPlayPage />} />
           <Route
             path="*"
@@ -35,7 +36,6 @@ function App() {
               </section>
             }
           />
-          <Route path="/puzzles/:puzzleId" element={<PuzzlePage />} />
         </Routes>
       </main>
     </>

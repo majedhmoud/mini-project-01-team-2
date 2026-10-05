@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getPuzzleById } from "../api";
+import { getPuzzleById, submitAnswer } from "../api";
+import { SubmitAnswerForm } from "./SubmitAnswerForm";
 
 interface PuzzleDetail {
   id: number;
   title: string;
   story: string;
   totalStages: number;
+  completedStages: number;
+  solved: boolean;
+  locked: boolean;
   currentStage: {
     id: number;
     title: string;
@@ -19,8 +23,23 @@ function PuzzleSection() {
   const { puzzleId } = useParams();
 
   const [puzzle, setPuzzle] = useState<PuzzleDetail | null>(null);
+  const [matching, setMatching] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+
+  async function SubmitAnswer(answer: string) {
+    try {
+      if (!puzzle) {
+        return;
+      }
+      const match = await submitAnswer(
+        Number(puzzleId),
+        puzzle.currentStage.id,
+        answer,
+      );
+      setMatching(match);
+    } catch (error) {}
+  }
 
   async function loadPuzzle(id: number) {
     setIsLoading(true);
@@ -28,7 +47,7 @@ function PuzzleSection() {
 
     try {
       const data = await getPuzzleById(id);
-      setPuzzle(data);
+      if (!data) setPuzzle(data);
     } catch {
       setHasError(true);
     } finally {
@@ -73,6 +92,10 @@ function PuzzleSection() {
             <h2>{puzzle.currentStage.title}</h2>
             <p className="stage-question">{puzzle.currentStage.question}</p>
           </div>
+
+          <SubmitAnswerForm onSubmit={SubmitAnswer} />
+
+          {matching && <p>Correct Answer</p>}
 
           <ol className="clue-list">
             {puzzle.currentStage.clues.map((clue, index) => (

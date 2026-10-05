@@ -22,7 +22,7 @@ export function getAllPuzzles(req, res) {
     };
   });
 
-  res.json({ puzzles: puzzleSummaries });
+  res.json(puzzleSummaries);
 }
 
 export function getPuzzleById(req, res) {
@@ -79,7 +79,7 @@ export function getCluesById(req, res) {
 export function submitAnswer(req, res) {
   const id = Number(req.params.id);
   const { stageId, answer } = req.body ?? {};
- 
+
   if (!id || id < 1) {
     return res.status(400).json({ message: "Invalid puzzle ID." });
   }
