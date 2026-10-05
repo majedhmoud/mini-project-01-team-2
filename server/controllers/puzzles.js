@@ -22,7 +22,7 @@ export function getAllPuzzles(req, res) {
     };
   });
 
-  res.json({ puzzles: puzzleSummaries });
+  res.json(puzzleSummaries);
 }
 
 export function getPuzzleById(req, res) {

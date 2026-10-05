@@ -1,10 +1,10 @@
 import { useParams } from "react-router-dom";
-import PuzzleSection from "../components/PuzzleSection";
+import PuzzlesSection from "../components/PuzzlesSection";
 
 function PuzzlePage() {
   const { puzzleId } = useParams();
 
-  return <PuzzleSection key={puzzleId} />;
+  return <PuzzlesSection key={puzzleId} />;
 }
 
 export default PuzzlePage;

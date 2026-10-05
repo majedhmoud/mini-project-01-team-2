@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
 import { getAllPuzzles } from "../api";
 import PuzzleCard from "./PuzzleCard";
-interface PuzzleSummary {
-  id: number;
-  title: string;
-  summary: string;
-}
+import { PuzzleSummary } from "../types";
 
 function PuzzlesSection() {
-  const [puzzles, setPuzzles] = useState<PuzzleSummary[]>([]);
+  const [puzzles, setPuzzles] = useState<PuzzleSummary[] | null>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
@@ -18,7 +14,7 @@ function PuzzlesSection() {
 
     try {
       const data = await getAllPuzzles();
-      setPuzzles(data.puzzles);
+      setPuzzles(data);
     } catch {
       setHasError(true);
     } finally {
@@ -45,17 +41,17 @@ function PuzzlesSection() {
           </button>
         </div>
       )}
-
       {!isLoading && !hasError && (
         <div className="puzzle-list">
-          {puzzles.map((puzzle) => (
-            <PuzzleCard
-              key={puzzle.id}
-              id={puzzle.id}
-              title={puzzle.title}
-              summary={puzzle.summary}
-            />
-          ))}
+          {Array.isArray(puzzles) &&
+            puzzles.map((puzzle) => (
+              <PuzzleCard
+                key={puzzle.id}
+                id={puzzle.id}
+                title={puzzle.title}
+                summary={puzzle.summary}
+              />
+            ))}
         </div>
       )}
     </section>
