@@ -1,29 +1,45 @@
-import { Route, Routes } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import PuzzlesPage from './pages/PuzzlesPage'
-import HowToPlayPage from './pages/HowToPlayPage'
-import NotFoundPage from './pages/NotFoundPage'
-import PuzzlePage from './pages/PuzzlePage'
-import ResultPage from './pages/ResultPage'
-
+import { Link, Route, Routes } from "react-router-dom";
+import PuzzlesSection from "./components/PuzzlesSection";
+import HowToPlayPage from "./pages/HowToPlayPage";
+import PuzzlePage from "./pages/PuzzlePage";
 function App() {
   return (
-    <div className="page">
-      <a className="skip-link" href="#main-content">Skip to content</a>
-      <Navbar />
-      <main className="main-layout" id="main-content">
+    <>
+      <header className="navbar">
+        <div className="navbar-content">
+          <Link className="brand" to="/">
+            Mystery Room
+          </Link>
+
+          <nav>
+            <Link className="nav-link" to="/">
+              Puzzles
+            </Link>
+            <Link className="nav-link" to="/how-to-play">
+              How to Play
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <main className="main-layout">
         <Routes>
-          <Route path="/" element={<PuzzlesPage />} />
+          <Route path="/" element={<PuzzlesSection />} />
           <Route path="/how-to-play" element={<HowToPlayPage />} />
+          <Route
+            path="*"
+            element={
+              <section className="panel">
+                <h1>Page not found</h1>
+                <Link to="/">Back to puzzles</Link>
+              </section>
+            }
+          />
           <Route path="/puzzles/:puzzleId" element={<PuzzlePage />} />
-          <Route path="/puzzles/:puzzleId/result" element={<ResultPage />} />
-          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
-      <Footer />
-    </div>
-  )
+    </>
+  );
 }
 
-export default App
+export default App;

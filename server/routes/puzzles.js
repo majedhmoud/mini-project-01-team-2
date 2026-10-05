@@ -1,10 +1,22 @@
 import express from "express";
-import { getAllPuzzles, getPuzzle, submitAnswer, requestStageHint } from "../controllers/puzzles.js";
+import {
+  getAllPuzzles,
+  getPuzzleById,
+  getCluesById,
+  submitAnswer,
+  requestHints,
+} from "../controllers/puzzles.js";
 
-const puzzlesRouter = express.Router();
-puzzlesRouter.get("/getAllPuzzles", getAllPuzzles);
-puzzlesRouter.get("/getPuzzle/:puzzleId", getPuzzle);
-puzzlesRouter.post("/submitAnswer/:puzzleId", submitAnswer);
-puzzlesRouter.patch("/requestStageHint/:puzzleId", requestStageHint);
+const router = express.Router();
 
-export { puzzlesRouter };
+router.get("/getAllPuzzles", getAllPuzzles);
+router.get("/getPuzzleById/:id", getPuzzleById);
+router.get("/getCluesById/:id/clues", getCluesById);
+router.post("/submitAnswer/:id/answers", submitAnswer);
+router.patch("/requestHints/:id/hint", requestHints);
+
+// Keep the existing frontend URLs working while Majed rebuilds the client.
+router.get("/getPuzzle/:id", getPuzzleById);
+router.post("/submitAnswer/:id", submitAnswer);
+
+export default router;

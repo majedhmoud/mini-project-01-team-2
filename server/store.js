@@ -1,88 +1,72 @@
 import { puzzlesData } from "./data.js";
 
-// One progress record per puzzle, created once for this server process.
-const progressByPuzzleId = {};
-for (const puzzle of puzzlesData.puzzles) {
-  const hintsUsedByStage = {};
-  for (const stage of puzzle.stages) hintsUsedByStage[stage.id] = 0;
-  progressByPuzzleId[puzzle.id] = {
+export const puzzles = puzzlesData.puzzles;
+
+// Every visitor shares this progress. Restarting Express creates fresh records.
+export const puzzleProgress = puzzles.map((puzzle) => {
+  return {
+    id: puzzle.id,
     currentStageIndex: 0,
     solved: false,
-    hintsUsedByStage,
+    hintsByStage: puzzle.stages.map((stage) => {
+      return { stageId: stage.id, hintsUsed: 0 };
+    }),
   };
+});
+
+// The three approved puzzle IDs are also their level order: 1, 2, 3.
+export function isPuzzleLocked(id) {
+  const unfinishedEarlierPuzzles = puzzleProgress.filter((progress) => {
+    return progress.id < id && !progress.solved;
+  });
+
+  return unfinishedEarlierPuzzles.length > 0;
 }
 
-export function getPuzzleById(puzzleId) {
-  return puzzlesData.puzzles.find((puzzle) => puzzle.id === puzzleId);
-}
+export function getPublicPuzzle(id) {
+  const puzzle = puzzles.find((puzzle) => puzzle.id === id);
+  const progress = puzzleProgress.find((progress) => progress.id === id);
 
-export function getProgressByPuzzleId(puzzleId) {
-  return progressByPuzzleId[puzzleId];
-}
+  let stage = null;
+  if (!progress.solved) {
+    stage = puzzle.stages[progress.currentStageIndex];
+  }
 
-// Seed order is the level order. Every preceding puzzle must be solved.
-export function isPuzzleLocked(puzzleId) {
-  const index = puzzlesData.puzzles.findIndex(
-    (puzzle) => puzzle.id === puzzleId,
-  );
-  return puzzlesData.puzzles
-    .slice(0, index)
-    .some((puzzle) => !getProgressByPuzzleId(puzzle.id).solved);
-}
-
-function getPublicProgress(puzzleId) {
-  const puzzle = getPuzzleById(puzzleId);
-  const progress = getProgressByPuzzleId(puzzleId);
-  return {
-    currentStageId: progress.solved
-      ? null
-      : puzzle.stages[progress.currentStageIndex].id,
-    completedStages: progress.currentStageIndex,
-    totalStages: puzzle.stages.length,
-    solved: progress.solved,
-  };
-}
-
-export function getPuzzleSummaries() {
-  return puzzlesData.puzzles.map(({ id, title, summary }) => ({
-    id,
-    title,
-    summary,
-    locked: isPuzzleLocked(id),
-    progress: getPublicProgress(id),
-  }));
-}
-
-export function getPublicPuzzle(puzzleId) {
-  const puzzle = getPuzzleById(puzzleId);
-  if (!puzzle) return undefined;
-  const progress = getProgressByPuzzleId(puzzleId);
-  const stage = progress.solved
-    ? null
-    : puzzle.stages[progress.currentStageIndex];
-  const publicPuzzle = {
+  const details = {
     id: puzzle.id,
     title: puzzle.title,
-    summary: puzzle.summary,
     story: puzzle.story,
-    locked: isPuzzleLocked(puzzleId),
-    progress: getPublicProgress(puzzleId),
+    totalStages: puzzle.stages.length,
+    completedStages: progress.currentStageIndex,
+    solved: progress.solved,
+    locked: isPuzzleLocked(id),
     currentStage: null,
   };
+
   if (stage) {
-    const used = progress.hintsUsedByStage[stage.id];
-    publicPuzzle.currentStage = {
+    const hintProgress = progress.hintsByStage.find((hintProgress) => {
+      return hintProgress.stageId === stage.id;
+    });
+    const publicHints = stage.hints.map((hint, hintId) => {
+      return { hintId, hint };
+    });
+    const revealedHints = publicHints.filter((hint) => {
+      return hint.hintId < hintProgress.hintsUsed;
+    });
+
+    details.currentStage = {
       id: stage.id,
       title: stage.title,
       question: stage.question,
-      clues: [...stage.clues],
-      revealedHints: stage.hints
-        .slice(0, used)
-        .map((hint, hintId) => ({ hintId, hint })),
-      hintsRemaining: stage.hints.length - used,
+      clues: stage.clues,
+      revealedHints,
+      hintsRemaining: stage.hints.length - hintProgress.hintsUsed,
     };
-  } else if (progress.solved) {
-    publicPuzzle.finalReveal = puzzle.finalReveal;
   }
-  return publicPuzzle;
+
+  if (progress.solved) {
+    details.finalReveal = puzzle.finalReveal;
+  }
+
+  return details;
 }
