@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getAllPuzzles } from "../api";
 import PuzzleCard from "./PuzzleCard";
 import { PuzzleSummary } from "../types";
+import ErrorMessage from "./ErrorMessage";
 
 function PuzzlesSection() {
   const [puzzles, setPuzzles] = useState<PuzzleSummary[] | null>([]);
@@ -28,28 +29,22 @@ function PuzzlesSection() {
 
   return (
     <section className="panel puzzles-panel">
-      <h1>Mystery Room</h1>
+      <h1>Puzzle Lab</h1>
       <p>Solve the puzzles in order.</p>
 
       {isLoading && <p>Loading puzzles...</p>}
+      {!isLoading && hasError && <ErrorMessage onRetry={loadPuzzles} />}
 
-      {!isLoading && hasError && (
-        <div>
-          <p>Could not load puzzles.</p>
-          <button className="action-button" onClick={loadPuzzles}>
-            Retry
-          </button>
-        </div>
-      )}
       {!isLoading && !hasError && (
         <div className="puzzle-list">
-          {Array.isArray(puzzles) &&
+          {puzzles &&
             puzzles.map((puzzle) => (
               <PuzzleCard
                 key={puzzle.id}
                 id={puzzle.id}
                 title={puzzle.title}
                 summary={puzzle.summary}
+                locked={puzzle.locked}
               />
             ))}
         </div>

@@ -1,9 +1,12 @@
+
 export interface PuzzleSummary {
   id: number;
   title: string;
   summary: string;
   locked: boolean;
-  progress: PuzzleProgress;
+  totalStages: number;
+  completedStages: number;
+  solved: boolean;
 }
 
 export interface PuzzleListResponse {
@@ -31,32 +34,27 @@ export interface PuzzleProgress {
   solved: boolean;
 }
 
-export interface PuzzleDetail extends PuzzleSummary {
+export interface PuzzleDetail {
+  id: number;
+  title: string;
   story: string;
+  locked: boolean;
   totalStages: number;
   completedStages: number;
   solved: boolean;
-  currentStage: {
-    id: number;
-    title: string;
-    question: string;
-    clues: string[];
-    revealedHints: RevealedHint;
-    hintsRemaining: number;
-  };
+  currentStage: PuzzleStage | null;
+  finalReveal?: string;
 }
 
 export interface SubmitAnswerResponse {
   correct: boolean;
-  message: string;
   puzzle: PuzzleDetail;
 }
 
 export interface StageHintResponse {
   hintId: number;
   hint: string;
+  puzzle: PuzzleDetail;
 }
 
-export interface ApiError extends Error {
-  status?: number;
-}
+

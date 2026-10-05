@@ -15,8 +15,6 @@ router.get("/getCluesById/:id/clues", getCluesById);
 router.post("/submitAnswer/:id/answers", submitAnswer);
 router.patch("/requestHints/:id/hint", requestHints);
 
-// Keep the existing frontend URLs working while Majed rebuilds the client.
-router.get("/getPuzzle/:id", getPuzzleById);
-router.post("/submitAnswer/:id", submitAnswer);
+
 
 export default router;
