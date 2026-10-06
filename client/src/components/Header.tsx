@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import BackgroundMusic from "./BackgrounMusic";
 
 export default function Header() {
   return (
@@ -21,6 +22,7 @@ export default function Header() {
           </span>
         </Link>
 
+
         <nav>
           <Link className="nav-link" to="/">
             Puzzles
@@ -28,6 +30,7 @@ export default function Header() {
           <Link className="nav-link" to="/how-to-play">
             How to Play
           </Link>
+        <BackgroundMusic />
         </nav>
       </div>
     </header>

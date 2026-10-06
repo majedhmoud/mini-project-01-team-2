@@ -137,6 +137,14 @@ nav {
   padding: 0.7rem 1.1rem;
   font-weight: 700;
 }
+.nav-link.music-toggle-button {
+  padding: 0.4rem 0.6rem;
+  background: none;
+  border: none;
+}
+.nav-link.music-toggle-button:hover {
+  color: #e1ce83;
+}
 .action-button:hover {
   background-color: #e1ce83;
   color: #102016;
@@ -164,9 +172,33 @@ nav {
   padding: 1rem;
   margin: 1rem 0;
 }
-.message.error {
+.error {
   color: #f2a6a0;
   border-color: #f2a6a0;
+  text-align: center;
+  padding: 100px;
+}
+
+.error-message {
+  max-width: 560px;
+  margin: 2rem auto;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  background-color: #102b1c;
+  border: 1px solid #557a5f;
+  border-top: 3px solid #d4be69;
+  border-radius: 12px;
+  text-align: center;
+}
+.error-message h2 {
+  color: #f2ead5;
+  margin-bottom: 0.75rem;
+}
+.error-message-text {
+  color: #c5cdb7;
+  margin-bottom: 1.5rem;
+}
+.error-message .action-button {
+  min-width: 140px;
 }
 
 /* Selection */
@@ -423,7 +455,6 @@ nav {
 }
 
 .brand-logo {
-
   zoom: 0.75;
   display: flex;
   flex-direction: column;
@@ -507,5 +538,3 @@ nav {
 .instruction-step:last-child {
   border-bottom: none;
 }
-
- 
