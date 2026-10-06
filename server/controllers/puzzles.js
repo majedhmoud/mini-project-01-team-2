@@ -10,7 +10,6 @@ export function getAllPuzzles(req, res) {
     const progress = puzzleProgress.find((progress) => {
       return progress.id === puzzle.id;
     });
-
     return {
       id: puzzle.id,
       title: puzzle.title,
@@ -21,7 +20,8 @@ export function getAllPuzzles(req, res) {
       solved: progress.solved,
     };
   });
-
+  if (puzzleSummaries === null)
+    return res.status(404).json({ message: "Puzzle not found." });
   res.json(puzzleSummaries);
 }
 
