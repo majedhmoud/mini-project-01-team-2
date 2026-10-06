@@ -137,6 +137,9 @@ nav {
   padding: 0.7rem 1.1rem;
   font-weight: 700;
 }
+.action-button.music-toggle-button {
+  padding: 0.4rem 0.6rem;
+}
 .action-button:hover {
   background-color: #e1ce83;
   color: #102016;
@@ -423,7 +426,6 @@ nav {
 }
 
 .brand-logo {
-
   zoom: 0.75;
   display: flex;
   flex-direction: column;
@@ -507,5 +509,3 @@ nav {
 .instruction-step:last-child {
   border-bottom: none;
 }
-
- 
