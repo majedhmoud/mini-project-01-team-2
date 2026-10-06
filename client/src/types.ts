@@ -9,10 +9,6 @@ export interface PuzzleSummary {
   solved: boolean;
 }
 
-export interface PuzzleListResponse {
-  puzzles: PuzzleSummary[];
-}
-
 export interface RevealedHint {
   hintId: number;
   hint: string;
@@ -25,13 +21,6 @@ export interface PuzzleStage {
   clues: string[];
   revealedHints: RevealedHint[];
   hintsRemaining: number;
-}
-
-export interface PuzzleProgress {
-  currentStageId: number | null;
-  completedStages: number;
-  totalStages: number;
-  solved: boolean;
 }
 
 export interface PuzzleDetail {
@@ -56,5 +45,4 @@ export interface StageHintResponse {
   hint: string;
   puzzle: PuzzleDetail;
 }
-
 
