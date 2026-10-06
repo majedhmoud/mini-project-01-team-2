@@ -326,10 +326,6 @@ nav {
 .answer-input::placeholder {
   color: #c5cdb7;
 }
-.answer-input:disabled {
-  background-color: #263e2e;
-  color: #a7b4a7;
-}
 .answer-feedback {
   background-color: #173b27;
   padding: 0.85rem 1rem;
