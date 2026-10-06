@@ -11,7 +11,7 @@ function PuzzleSection() {
   const [resultMessage, setResultMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-
+  const [errorMessage, setErrorMessage] = useState("");
   const [hintError, setHintError] = useState("");
 
   async function SubmitAnswer(answer: string): Promise<boolean> {
@@ -38,11 +38,19 @@ function PuzzleSection() {
   async function loadPuzzle(id: number) {
     setIsLoading(true);
     setHasError(false);
+    setErrorMessage("");
 
     try {
       const data = await getPuzzleById(id);
       setPuzzle(data);
     } catch (error) {
+      const errorStatus = String(error).split(":")[1].trim();
+      if (errorStatus == "Not Found") setErrorMessage("Puzzle Id not found.");
+      else if (errorStatus == "Forbidden")
+        setErrorMessage(
+          "Complete all earlier puzzles before investigating this level.",
+        );
+      else setErrorMessage(errorStatus);
       setHasError(true);
       console.log(error);
     } finally {
@@ -80,7 +88,10 @@ function PuzzleSection() {
       {isLoading && <p>Loading puzzle...</p>}
 
       {!isLoading && hasError && (
-        <ErrorMessage onRetry={() => loadPuzzle(Number(puzzleId))} />
+        <ErrorMessage
+          errorMessage={errorMessage}
+          onRetry={() => loadPuzzle(Number(puzzleId))}
+        />
       )}
 
       {!isLoading &&

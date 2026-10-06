@@ -36,7 +36,7 @@ export default function BackgroundMusic() {
       <audio ref={setAudio} src={musicUrl} loop preload="auto" />
       <button
         type="button"
-        className="action-button music-toggle-button"
+        className="nav-link music-toggle-button"
         onClick={togglePlayback}
         aria-label={
           isPlaying ? "Pause background music" : "Play background music"

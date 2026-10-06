@@ -22,7 +22,6 @@ export default function Header() {
           </span>
         </Link>
 
-        <BackgroundMusic />
 
         <nav>
           <Link className="nav-link" to="/">
@@ -31,6 +30,7 @@ export default function Header() {
           <Link className="nav-link" to="/how-to-play">
             How to Play
           </Link>
+        <BackgroundMusic />
         </nav>
       </div>
     </header>
