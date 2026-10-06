@@ -24,16 +24,6 @@ export async function getPuzzleById(id: number): Promise<PuzzleDetail> {
   return (await response.json()) as PuzzleDetail;
 }
 
-export async function getCluesById(id: number): Promise<string[]> {
-  const response = await fetch(`/api/getCluesById/${id}/clues`);
-
-  if (!response.ok) {
-    throw new Error("Could not load the clue.");
-  }
-
-  return (await response.json()) as string[];
-}
-
 export async function submitAnswer(
   id: number,
   stageId: number,
