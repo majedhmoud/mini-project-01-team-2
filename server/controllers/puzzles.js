@@ -1,130 +1,200 @@
-import {  getPuzzleById,
-  getProgressByPuzzleId,
-  getPuzzleSummaries,
+import {
+  puzzles,
+  puzzleProgress,
   getPublicPuzzle,
-  checkAndAdvanceStage,
-  unlockStageHint,} from "../store.js";
+  isPuzzleLocked,
+} from "../store.js";
 
-  function isValidId(value) {
-  return typeof value === "string" && /^[1-9]\d*$/.test(value);
+export function getAllPuzzles(req, res) {
+  const puzzleSummaries = puzzles.map((puzzle) => {
+    const progress = puzzleProgress.find((progress) => {
+      return progress.id === puzzle.id;
+    });
+
+    return {
+      id: puzzle.id,
+      title: puzzle.title,
+      summary: puzzle.summary,
+      locked: isPuzzleLocked(puzzle.id),
+      totalStages: puzzle.stages.length,
+      completedStages: progress.currentStageIndex,
+      solved: progress.solved,
+    };
+  });
+
+  res.json(puzzleSummaries);
 }
 
-  export function getAllPuzzles(req, res) {
-  const summaries = getPuzzleSummaries();
-  return res.status(200).json({ puzzles: summaries });
-}
+export function getPuzzleById(req, res) {
+  const id = Number(req.params.id);
 
-
-export function getPuzzle(req, res) {
-  const { puzzleId } = req.params;
-
-  if (!isValidId(puzzleId)) {
-    return res.status(400).json({ message: "Invalid puzzle ID format." });
+  if (!id || id < 1) {
+    return res.status(400).json({ message: "Invalid puzzle ID." });
   }
 
-  const puzzle = getPuzzleById(puzzleId);
+  const puzzle = puzzles.find((puzzle) => puzzle.id === id);
+
   if (!puzzle) {
     return res.status(404).json({ message: "Puzzle not found." });
   }
 
-  const publicData = getPublicPuzzle(puzzleId);
-  return res.status(200).json(publicData);
+  if (isPuzzleLocked(id)) {
+    return res.status(403).json({
+      message: "Complete all earlier puzzles before investigating this level.",
+    });
+  }
+
+  res.json(getPublicPuzzle(id));
 }
 
+export function getCluesById(req, res) {
+  const id = Number(req.params.id);
+
+  if (!id || id < 1) {
+    return res.status(400).json({ message: "Invalid puzzle ID." });
+  }
+
+  const puzzle = puzzles.find((puzzle) => puzzle.id === id);
+
+  if (!puzzle) {
+    return res.status(404).json({ message: "Puzzle not found." });
+  }
+
+  if (isPuzzleLocked(id)) {
+    return res.status(403).json({
+      message: "Complete all earlier puzzles before investigating this level.",
+    });
+  }
+
+  const progress = puzzleProgress.find((progress) => progress.id === id);
+
+  if (progress.solved) {
+    return res.status(409).json({ message: "Puzzle already solved." });
+  }
+
+  const stage = puzzle.stages[progress.currentStageIndex];
+  res.json(stage.clues);
+}
 
 export function submitAnswer(req, res) {
-  const { puzzleId } = req.params;
+  const id = Number(req.params.id);
+  const { stageId, answer } = req.body ?? {};
 
-  if (!isValidId(puzzleId)) {
-    return res.status(400).json({ message: "Invalid puzzle ID format." });
+  if (!id || id < 1) {
+    return res.status(400).json({ message: "Invalid puzzle ID." });
   }
 
-  const { stageId, answer } = req.body || {};
+  const puzzle = puzzles.find((puzzle) => puzzle.id === id);
 
-  if (
-    !req.body ||
-    typeof req.body !== "object" ||
-    Array.isArray(req.body) ||
-    !Number.isInteger(stageId) ||
-    stageId <= 0 ||
-    typeof answer !== "string" ||
-    answer.trim().length === 0
-  ) {
-    return res.status(400).json({ message: "Invalid request body fields." });
-  }
-
-  const puzzle = getPuzzleById(puzzleId);
   if (!puzzle) {
     return res.status(404).json({ message: "Puzzle not found." });
   }
 
-  const stageExists = puzzle.stages.some((s) => s.id === stageId);
-  if (!stageExists) {
-    return res.status(404).json({ message: "Stage not found in this puzzle." });
+  if (isPuzzleLocked(id)) {
+    return res.status(403).json({
+      message: "Complete all earlier puzzles before investigating this level.",
+    });
   }
 
-  const progress = getProgressByPuzzleId(puzzleId);
+  if (typeof stageId !== "number" || !stageId || stageId < 1) {
+    return res.status(400).json({ message: "Invalid stage ID." });
+  }
+
+  if (typeof answer !== "string" || !answer.trim()) {
+    return res.status(400).json({ message: "Enter an answer." });
+  }
+
+  const stage = puzzle.stages.find((stage) => stage.id === stageId);
+
+  if (!stage) {
+    return res.status(404).json({ message: "Stage not found." });
+  }
+
+  const progress = puzzleProgress.find((progress) => progress.id === id);
 
   if (progress.solved) {
-    return res.status(409).json({ message: "Puzzle is already solved." });
+    return res.status(409).json({ message: "Puzzle already solved." });
   }
 
   const currentStage = puzzle.stages[progress.currentStageIndex];
+
   if (currentStage.id !== stageId) {
-    return res.status(409).json({ message: "Stage is not current." });
+    return res.status(409).json({ message: "This stage is not current." });
   }
 
-  const result = checkAndAdvanceStage(puzzleId, answer);
-  return res.status(200).json(result);
+  const submittedAnswer = answer.trim().toLowerCase();
+  const acceptedAnswers = stage.answers.map((acceptedAnswer) => {
+    return acceptedAnswer.trim().toLowerCase();
+  });
+  const correct = acceptedAnswers.includes(submittedAnswer);
+
+  if (correct) {
+    progress.currentStageIndex += 1;
+    progress.solved = progress.currentStageIndex === puzzle.stages.length;
+  }
+
+  res.json({
+    correct,
+    puzzle: getPublicPuzzle(id),
+  });
 }
 
+export function requestHints(req, res) {
+  const id = Number(req.params.id);
+  const { stageId } = req.body ?? {};
 
-export function requestStageHint(req, res) {
-  const { puzzleId } = req.params;
-
-  if (!isValidId(puzzleId)) {
-    return res.status(400).json({ message: "Invalid puzzle ID format." });
+  if (!id || id < 1) {
+    return res.status(400).json({ message: "Invalid puzzle ID." });
   }
 
-  const { stageId } = req.body || {};
+  const puzzle = puzzles.find((puzzle) => puzzle.id === id);
 
-  if (
-    !req.body ||
-    typeof req.body !== "object" ||
-    Array.isArray(req.body) ||
-    !Number.isInteger(stageId) ||
-    stageId <= 0
-  ) {
-    return res.status(400).json({ message: "Invalid stageId field." });
-  }
-
-  const puzzle = getPuzzleById(puzzleId);
   if (!puzzle) {
     return res.status(404).json({ message: "Puzzle not found." });
   }
 
-  const stageExists = puzzle.stages.some((s) => s.id === stageId);
-  if (!stageExists) {
-    return res.status(404).json({ message: "Stage not found in this puzzle." });
+  if (isPuzzleLocked(id)) {
+    return res.status(403).json({
+      message: "Complete all earlier puzzles before investigating this level.",
+    });
   }
 
-  const progress = getProgressByPuzzleId(puzzleId);
+  if (typeof stageId !== "number" || !stageId || stageId < 1) {
+    return res.status(400).json({ message: "Invalid stage ID." });
+  }
+
+  const stage = puzzle.stages.find((stage) => stage.id === stageId);
+
+  if (!stage) {
+    return res.status(404).json({ message: "Stage not found." });
+  }
+
+  const progress = puzzleProgress.find((progress) => progress.id === id);
 
   if (progress.solved) {
-    return res.status(409).json({ message: "Puzzle is already solved." });
+    return res.status(409).json({ message: "Puzzle already solved." });
   }
 
   const currentStage = puzzle.stages[progress.currentStageIndex];
+
   if (currentStage.id !== stageId) {
-    return res.status(409).json({ message: "Stage is not current." });
+    return res.status(409).json({ message: "This stage is not current." });
   }
 
-  const hintsUsed = progress.hintsUsedByStage[stageId] || 0;
-  if (hintsUsed >= currentStage.hints.length) {
-    return res.status(409).json({ message: "No hints remaining for this stage." });
+  const hintProgress = progress.hintsByStage.find((hintProgress) => {
+    return hintProgress.stageId === stageId;
+  });
+  const hintId = hintProgress.hintsUsed;
+
+  if (hintId === stage.hints.length) {
+    return res.status(409).json({ message: "No hints remain for this stage." });
   }
 
-  const result = unlockStageHint(puzzleId, stageId);
-  return res.status(200).json(result);
+  hintProgress.hintsUsed += 1;
+
+  res.json({
+    hintId,
+    hint: stage.hints[hintId],
+    puzzle: getPublicPuzzle(id),
+  });
 }
-

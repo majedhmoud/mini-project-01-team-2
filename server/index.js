@@ -4,21 +4,11 @@ import puzzlesRouter from "./routes/puzzles.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 3001;
-
 const app = express();
+
 app.use(express.json());
-
-app.use((req, res, next) => {
-  console.log(req.method, req.path);
-  next();
-});
-
-app.get("/api", (req, res) => {
-  res.json({ message: "Hello from B4F Hub local API!" });
-});
-
-app.use("/api/puzzles", puzzlesRouter);
+app.use("/api", puzzlesRouter);
 
 app.listen(PORT, () => {
-  console.log(`B4F Hub local API running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });

@@ -1,146 +1,72 @@
+import { puzzlesData } from "./data.js";
 
-import  puzzlesData  from "./data.js";
-let puzzlesstore = puzzlesData;
-const progressByPuzzleId = {};
+export const puzzles = puzzlesData.puzzles;
 
-puzzlesstore.puzzles.forEach((puzzle) => {
-  const hintsUsed = {};
-  puzzle.stages.forEach((stage) => {
-    hintsUsed[stage.id] = 0;
-  });
-
-  progressByPuzzleId[puzzle.id] = {
+// Every visitor shares this progress. Restarting Express creates fresh records.
+export const puzzleProgress = puzzles.map((puzzle) => {
+  return {
+    id: puzzle.id,
     currentStageIndex: 0,
     solved: false,
-    hintsUsedByStage: hintsUsed,
+    hintsByStage: puzzle.stages.map((stage) => {
+      return { stageId: stage.id, hintsUsed: 0 };
+    }),
   };
 });
 
-export function getPuzzleById(puzzleId) {
-  return puzzlesstore.puzzles.find((puzzle) => puzzle.id === Number(puzzleId));
+// The three approved puzzle IDs are also their level order: 1, 2, 3.
+export function isPuzzleLocked(id) {
+  const unfinishedEarlierPuzzles = puzzleProgress.filter((progress) => {
+    return progress.id < id && !progress.solved;
+  });
+
+  return unfinishedEarlierPuzzles.length > 0;
 }
 
-export function getProgressByPuzzleId(puzzleId) {
-  return progressByPuzzleId[Number(puzzleId)];
-}
+export function getPublicPuzzle(id) {
+  const puzzle = puzzles.find((puzzle) => puzzle.id === id);
+  const progress = puzzleProgress.find((progress) => progress.id === id);
 
-export function getPuzzleSummaries() {
-  return puzzlesstore.puzzles.map((puzzle) => ({
-    id: puzzle.id,
-    title: puzzle.title,
-    summary: puzzle.summary,
-  }));
-}
-export function getPublicPuzzle(puzzleId) {
-  const puzzle = getPuzzleById(puzzleId);
-  const progress = getProgressByPuzzleId(puzzleId);
-
-  if (!puzzle || !progress) {
-    return undefined;
+  let stage = null;
+  if (!progress.solved) {
+    stage = puzzle.stages[progress.currentStageIndex];
   }
 
-  const totalStages = puzzle.stages.length;
+  const details = {
+    id: puzzle.id,
+    title: puzzle.title,
+    story: puzzle.story,
+    totalStages: puzzle.stages.length,
+    completedStages: progress.currentStageIndex,
+    solved: progress.solved,
+    locked: isPuzzleLocked(id),
+    currentStage: null,
+  };
+
+  if (stage) {
+    const hintProgress = progress.hintsByStage.find((hintProgress) => {
+      return hintProgress.stageId === stage.id;
+    });
+    const publicHints = stage.hints.map((hint, hintId) => {
+      return { hintId, hint };
+    });
+    const revealedHints = publicHints.filter((hint) => {
+      return hint.hintId < hintProgress.hintsUsed;
+    });
+
+    details.currentStage = {
+      id: stage.id,
+      title: stage.title,
+      question: stage.question,
+      clues: stage.clues,
+      revealedHints,
+      hintsRemaining: stage.hints.length - hintProgress.hintsUsed,
+    };
+  }
 
   if (progress.solved) {
-    return {
-      id: puzzle.id,
-      title: puzzle.title,
-      summary: puzzle.summary,
-      story: puzzle.story,
-      progress: {
-        currentStageId: null,
-        completedStages: totalStages,
-        totalStages: totalStages,
-        solved: true,
-      },
-      currentStage: null,
-      finalReveal: puzzle.finalReveal,  
-    };
+    details.finalReveal = puzzle.finalReveal;
   }
 
-  const currentStageData = puzzle.stages[progress.currentStageIndex];
-  const hintsUsedCount = progress.hintsUsedByStage[currentStageData.id] || 0;
-
-  const revealedHints = currentStageData.hints
-    .slice(0, hintsUsedCount)
-    .map((hintText, index) => ({
-      hintId: index,
-      hint: hintText,
-    }));
-
-  const hintsRemaining = currentStageData.hints.length - hintsUsedCount;
-
-  return {
-    id: puzzle.id,
-    title: puzzle.title,
-    summary: puzzle.summary,
-    story: puzzle.story,
-    progress: {
-      currentStageId: currentStageData.id,
-      completedStages: progress.currentStageIndex,
-      totalStages: totalStages,
-      solved: false,
-    },
-    currentStage: {
-      id: currentStageData.id,
-      title: currentStageData.title,
-      question: currentStageData.question,
-      clues: currentStageData.clues,
-      revealedHints: revealedHints,
-      hintsRemaining: hintsRemaining,
-    },
-
-  };
+  return details;
 }
-
-export function checkAndAdvanceStage(puzzleId, answer) {
-  const puzzle = getPuzzleById(puzzleId);
-  const progress = getProgressByPuzzleId(puzzleId);
-
-  const currentStage = puzzle.stages[progress.currentStageIndex];
-
-  const normalizedAnswer = String(answer).trim().toLowerCase();
-
-  const isCorrect = currentStage.answers.some(
-    (acceptedAnswer) => acceptedAnswer.trim().toLowerCase() === normalizedAnswer
-  );
-
-  if (isCorrect) {
-    progress.currentStageIndex += 1;
-
-    if (progress.currentStageIndex >= puzzle.stages.length) {
-      progress.solved = true;
-    }
-
-    return {
-      correct: true,
-      message: "Correct answer! Stage passed.",
-      puzzle: getPublicPuzzle(puzzleId),
-    };
-  }
-
-  return {
-    correct: false,
-    message: "Incorrect answer. Try again.",
-    puzzle: getPublicPuzzle(puzzleId),
-  };
-}
-
-export function unlockStageHint(puzzleId, stageId) {
-  const puzzle = getPuzzleById(puzzleId);
-  const progress = getProgressByPuzzleId(puzzleId);
-
-  const currentStage = puzzle.stages[progress.currentStageIndex];
-
-  const nextHintIndex = progress.hintsUsedByStage[stageId];
-  const hintText = currentStage.hints[nextHintIndex];
-
-  progress.hintsUsedByStage[stageId] += 1;
-
-  return {
-    hintId: nextHintIndex,
-    hint: hintText,
-    puzzle: getPublicPuzzle(puzzleId),
-  };
-}
-
