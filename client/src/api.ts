@@ -18,7 +18,7 @@ export async function getPuzzleById(id: number): Promise<PuzzleDetail> {
   const response = await fetch(`/api/getPuzzleById/${id}`);
 
   if (!response.ok) {
-    throw new Error("Could not load this puzzle.");
+    throw new Error(response.statusText);
   }
 
   return (await response.json()) as PuzzleDetail;
