@@ -7,7 +7,7 @@ export default function ErrorMessage({
   onRetry,
 }: ErrorMessageProps) {
   return (
-    // added by chatGPT
+
     <div className="error-message" role="alert">
       <p className="eyebrow">Investigation interrupted</p>
       <h2>Something went wrong</h2>
