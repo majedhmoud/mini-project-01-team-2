@@ -1,28 +1,30 @@
-import { Provider } from "react-redux";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { store } from "./store";
-import MysterySelection from "./components/MysterySelection";
-import MysteryRoom from "./components/MysteryRoom";
-import MysteryReveal from "./components/MysteryReveal";
-import "./App.css";
-
+import { Link, Route, Routes } from "react-router-dom";
+import PuzzlesSection from "./components/PuzzlesSection";
+import HowToPlayPage from "./pages/HowToPlayPage";
+import PuzzlePage from "./pages/PuzzlePage";
+import Header from "./components/Header";
 function App() {
   return (
-    <Provider store={store}>
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
+    <>
+      <Header />
+
+      <main className="main-layout">
         <Routes>
-          <Route path="/" element={<MysterySelection />} />
+          <Route path="/" element={<PuzzlesSection />} />
+          <Route path="/puzzles/:puzzleId" element={<PuzzlePage />} />
+          <Route path="/how-to-play" element={<HowToPlayPage />} />
           <Route
-            path="/mysteries/:mysteryId/result"
-            element={<MysteryReveal />}
+            path="*"
+            element={
+              <section className="panel">
+                <h1>Page not found</h1>
+                <Link to="/">Back to puzzles</Link>
+              </section>
+            }
           />
-          <Route path="/mysteries/:mysteryId" element={<MysteryRoom />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
-    </Provider>
+      </main>
+    </>
   );
 }
 
